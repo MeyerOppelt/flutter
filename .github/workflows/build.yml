@@ -17,7 +17,7 @@ jobs:
             FLUTTER_VERSION: 3.29.2
 
     env:
-      BASE_IMAGE: ghcr.io/meyeroppelt/flutter-base
+      BASE_IMAGE: ghcr.io/meyeroppelt/android-base
       FINAL_IMAGE: ghcr.io/meyeroppelt/flutter
 
     steps:
@@ -39,9 +39,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache-base
-          key: ${{ runner.os }}-flutter-base
+          key: ${{ runner.os }}-android-base
           restore-keys: |
-            ${{ runner.os }}-flutter-base
+            ${{ runner.os }}-android-base
 
       - name: Build and Push Base Image (if needed)
         uses: docker/build-push-action@v5
@@ -61,7 +61,7 @@ jobs:
           file: ./sdk/flutter/Dockerfile
           build-args: |
             flutter_version=${{ matrix.FLUTTER_VERSION }}
-            BASE_IMAGE=ghcr.io/meyeroppelt/flutter-base:latest
+            BASE_IMAGE=ghcr.io/meyeroppelt/android-base:latest
           tags: |
             ${{ env.FINAL_IMAGE }}:${{ matrix.FLUTTER_VERSION }}
             ${{ env.FINAL_IMAGE }}:${{ matrix.DOCKER_TAG }}
