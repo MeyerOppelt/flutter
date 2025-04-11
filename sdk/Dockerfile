@@ -4,6 +4,9 @@ LABEL org.opencontainers.image.source=https://github.com/meyeroppelt/docker-imag
 
 USER root
 
+RUN groupadd -g 1001 flutteruser && \
+    useradd -u 1001 -g flutteruser -m flutteruser
+
 # android install
 
 ENV ANDROID_HOME=/opt/android-sdk-linux \
@@ -85,6 +88,8 @@ ENV FLUTTER_ROOT=$FLUTTER_HOME
 ENV PATH ${PATH}:${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin
 
 RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git ${FLUTTER_HOME}
+
+USER flutteruser
 
 RUN yes | flutter doctor --android-licenses \
     && flutter doctor \
