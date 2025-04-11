@@ -1,48 +1,46 @@
 #!/bin/bash
 set -e
 
-# This script fetches the latest version of a the stable and beta flutter channels
-# and edits the .cirrus.yml file with those versions
+# This script fetches the latest Flutter stable and beta versions
+# and updates the GitHub Actions build matrix with them.
 
+GH_ACTIONS_FILE=".github/workflows/build.yml"
 releases_json=$(curl -s https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json)
 
-# This function edits the .cirrus.yml file with the given flutter version for the given docker tag
-edit_cirrus_file_for_tag() {
-    cirrus_file=".cirrus.yml"
-    docker_tag=$1
-    version=$2
-
-    # env for yq
-    docker_tag=$docker_tag version=$version \
-        yq -i '(.docker_builder.env.matrix[] | select(.DOCKER_TAG == env(docker_tag)) | .FLUTTER_VERSION) = env(version)' $cirrus_file
-}
-
-# This function fetches the latest version of a particular channel (stable, beta) for Flutter
+# Fetch latest version of a specific channel (stable)
 get_latest_version_in_channel() {
-    channel=$1
-    # This contains the hash of the latest version in the channel
-    channel_hash=$(echo "$releases_json" | jq -r '.current_release.'"$channel")
-    # Look for the version corresponding to the hash in the list of releases
-    version=$(echo "$releases_json" | jq -r --arg HASH "$channel_hash" \
-        '.releases[] | select(.hash == $HASH).version')
+    local channel=$1
+    local channel_hash=$(echo "$releases_json" | jq -r ".current_release.\"$channel\"")
+    local version=$(echo "$releases_json" | jq -r --arg hash "$channel_hash" '.releases[] | select(.hash == $hash) | .version')
 
-    # check not empty
     if [ -z "$version" ]; then
-        echo "Error fetching latest version in channel $channel"
+        echo "Error fetching latest version for $channel"
         exit 1
     fi
 
     echo "$version"
 }
 
-stable_version=$(get_latest_version_in_channel "stable")
-beta_version=$(get_latest_version_in_channel "beta")
+# Update the GitHub Actions workflow matrix
+update_version_in_github_actions() {
+  local docker_tag=$1
+  local version=$2
 
-echo "Latest beta version: $beta_version"
+  # Use yq to update the Flutter version in the matrix for the matching docker_tag
+  yq -i '
+    .jobs["docker_builder"].strategy.matrix.include |= map(
+      select(.DOCKER_TAG == "'"$docker_tag"'") |= .FLUTTER_VERSION = "'"$version"'"
+    )
+  ' "$GH_ACTIONS_FILE"
+}
+
+# Get latest versions
+stable_version=$(get_latest_version_in_channel "stable")
+
 echo "Latest stable version: $stable_version"
 
-edit_cirrus_file_for_tag "stable" "$stable_version"
-edit_cirrus_file_for_tag "latest" "$stable_version"
-edit_cirrus_file_for_tag "beta" "$beta_version"
+# Update build matrix in GitHub Actions workflow
+update_version_in_github_actions "stable" "$stable_version"
+update_version_in_github_actions "latest" "$stable_version"
 
-exit 0
+echo "✅ Flutter versions updated in $GH_ACTIONS_FILE"
