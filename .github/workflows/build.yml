@@ -16,8 +16,6 @@ jobs:
             FLUTTER_VERSION: 3.29.2
           - DOCKER_TAG: stable
             FLUTTER_VERSION: 3.29.2
-          - DOCKER_TAG: beta
-            FLUTTER_VERSION: 3.30.0-0.1.pre
 
     env:
       IMAGE_NAME: ghcr.io/cirruslabs/flutter
