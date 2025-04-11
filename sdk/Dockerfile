@@ -50,7 +50,7 @@ RUN set -o xtrace \
 # emulator is not available on linux/arm64 (https://issuetracker.google.com/issues/227219818)
 RUN if [ $(uname -m) == "x86_64" ]; then sdkmanager emulator ; fi
 
-# android sdk install
+# android sdk, ndk install
 
 RUN yes | sdkmanager \
     "platforms;android-35" \
@@ -63,16 +63,9 @@ RUN yes | sdkmanager \
 
 ENV ANDROID_NDK_VERSION 27.2.12479018
 
-RUN yes | sdkmanager "ndk;$ANDROID_NDK_VERSION"
-
-# cmake install
-
-RUN mkdir -p /opt/cmake && \
-    curl -sSL https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1-linux-x86_64.tar.gz \
-    | tar --strip-components=1 -xz -C /opt/cmake && \
-    ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
-
-ENV PATH="/opt/cmake/bin:$PATH"
+RUN yes | sdkmanager \
+    "ndk;$ANDROID_NDK_VERSION" \
+    "cmake;3.22.1"
 
 # flutter install
 
