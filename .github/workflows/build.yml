@@ -1,0 +1,63 @@
+name: Build and Publish Flutter Docker Image
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+jobs:
+  docker_builder:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - DOCKER_TAG: latest
+            FLUTTER_VERSION: 3.29.2
+          - DOCKER_TAG: stable
+            FLUTTER_VERSION: 3.29.2
+          - DOCKER_TAG: beta
+            FLUTTER_VERSION: 3.30.0-0.1.pre
+
+    env:
+      IMAGE_NAME: ghcr.io/cirruslabs/flutter
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push (only on master/main)
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./sdk
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: |
+            flutter_version=${{ matrix.FLUTTER_VERSION }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ matrix.FLUTTER_VERSION }}
+            ${{ env.IMAGE_NAME }}:${{ matrix.DOCKER_TAG }}
+
+      - name: Build Only (for non-main branches)
+        if: github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./sdk
+          platforms: linux/amd64,linux/arm64
+          push: false
+          build-args: |
+            flutter_version=${{ matrix.FLUTTER_VERSION }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ matrix.FLUTTER_VERSION }}
+            ${{ env.IMAGE_NAME }}:${{ matrix.DOCKER_TAG }}
