@@ -1,5 +1,5 @@
 # ---- Flutter Layer ----
-FROM base as flutter
+FROM ghcr.io/meyeroppelt/flutter-base:latest AS flutter
 # flutter install
 
 ARG flutter_version

@@ -17,7 +17,7 @@ jobs:
             FLUTTER_VERSION: 3.29.2
 
     env:
-      BASE_IMAGE: ghcr.io/meyeroppelt/flutter-base
+      BASE_IMAGE: ghcr.io/meyeroppelt/android-base
       FINAL_IMAGE: ghcr.io/meyeroppelt/flutter
 
     steps:
@@ -61,6 +61,7 @@ jobs:
           file: ./sdk/flutter/Dockerfile
           build-args: |
             flutter_version=${{ matrix.FLUTTER_VERSION }}
+            BASE_IMAGE=ghcr.io/meyeroppelt/flutter-base:latest
           tags: |
             ${{ env.FINAL_IMAGE }}:${{ matrix.FLUTTER_VERSION }}
             ${{ env.FINAL_IMAGE }}:${{ matrix.DOCKER_TAG }}
