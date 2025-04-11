@@ -1,4 +1,6 @@
-FROM ubuntu:24.04
+# ---- Base Layer ----
+
+FROM ubuntu:24.04 as base
 
 LABEL org.opencontainers.image.source=https://github.com/meyeroppelt/docker-images-flutter
 
@@ -67,20 +69,3 @@ RUN yes | sdkmanager \
     "ndk;$ANDROID_NDK_VERSION" \
     "cmake;3.22.1"
 
-# flutter install
-
-ARG flutter_version
-
-ENV FLUTTER_HOME=${HOME}/sdks/flutter \
-    FLUTTER_VERSION=$flutter_version
-ENV FLUTTER_ROOT=$FLUTTER_HOME
-
-ENV PATH ${PATH}:${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin
-
-RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git ${FLUTTER_HOME}
-
-RUN yes | flutter doctor --android-licenses 
-
-RUN flutter doctor && chown -R root:root ${FLUTTER_HOME}
-
-RUN flutter precache --android
