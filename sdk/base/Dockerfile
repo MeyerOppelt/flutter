@@ -63,9 +63,7 @@ RUN yes | sdkmanager \
     "platforms;android-32" \
     "platforms;android-31"
 
-ENV ANDROID_NDK_VERSION 27.2.12479018
-
 RUN yes | sdkmanager \
-    "ndk;$ANDROID_NDK_VERSION" \
+    "ndk;$27.2.12479018" \
     "cmake;3.22.1"
 

@@ -94,7 +94,8 @@ jobs:
             ${{ env.FINAL_IMAGE }}:latest
             ${{ env.FINAL_IMAGE }}:stable
           push: true
+          # ✅ Only use base cache for "cache-from"
           cache-from: |
             type=local,src=/tmp/.buildx-cache-base
             type=local,src=/tmp/.buildx-cache-flutter
-          cache-to: type=local,dest=/tmp/.buildx-cache-flutter
+          cache-to: type=local,dest=/tmp/.buildx-cache-flutter,mode=max
