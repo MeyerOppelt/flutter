@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-# This script fetches the latest Flutter stable and beta versions
-# and updates the GitHub Actions build matrix with them.
+# This script fetches the latest Flutter stable version
+# and writes it to scripts/flutter_version.
 
-GH_ACTIONS_FILE=".github/workflows/build.yml"
+VERSION_FILE="scripts/flutter_stable"
 releases_json=$(curl -s https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json)
 
 # Fetch latest version of a specific channel (stable)
@@ -21,26 +21,13 @@ get_latest_version_in_channel() {
     echo "$version"
 }
 
-# Update the GitHub Actions workflow matrix
-update_version_in_github_actions() {
-  local docker_tag=$1
-  local version=$2
-
-  # Use yq to update the Flutter version in the matrix for the matching docker_tag
-  yq -i '
-    .jobs["docker_builder"].strategy.matrix.include |= map(
-      select(.DOCKER_TAG == "'"$docker_tag"'") |= .FLUTTER_VERSION = "'"$version"'"
-    )
-  ' "$GH_ACTIONS_FILE"
-}
-
-# Get latest versions
+# Get latest stable version
 stable_version=$(get_latest_version_in_channel "stable")
 
 echo "Latest stable version: $stable_version"
 
-# Update build matrix in GitHub Actions workflow
-update_version_in_github_actions "stable" "$stable_version"
-update_version_in_github_actions "latest" "$stable_version"
+# Write version to file
+mkdir -p "$(dirname "$VERSION_FILE")"
+echo "$stable_version" > "$VERSION_FILE"
 
-echo "✅ Flutter versions updated in $GH_ACTIONS_FILE"
+echo "✅ Flutter stable version written to $VERSION_FILE"
