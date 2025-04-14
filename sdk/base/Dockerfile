@@ -64,6 +64,6 @@ RUN yes | sdkmanager \
     "platforms;android-31"
 
 RUN yes | sdkmanager \
-    "ndk;$27.2.12479018" \
+    "ndk;27.2.12479018" \
     "cmake;3.22.1"
 
