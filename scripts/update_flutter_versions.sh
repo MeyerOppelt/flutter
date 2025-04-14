@@ -2,7 +2,7 @@
 set -e
 
 # This script fetches the latest Flutter stable version
-# and writes it to scripts/flutter_version.
+# and writes it to scripts/flutter_stable.
 
 VERSION_FILE="scripts/flutter_stable"
 releases_json=$(curl -s https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json)
