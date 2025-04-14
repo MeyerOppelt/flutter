@@ -36,7 +36,7 @@ jobs:
           path: /tmp/.buildx-cache-base
           key: ${{ runner.os }}-android-base-${{ hashFiles('sdk/base/**') }}
           restore-keys: |
-            ${{ runner.os }}-android-base
+            ${{ runner.os }}-android-base-${{ hashFiles('sdk/base/**') }}
 
       - name: Build and Push Base Image
         uses: docker/build-push-action@v5
@@ -79,7 +79,7 @@ jobs:
           path: /tmp/.buildx-cache-flutter
           key: ${{ runner.os }}-flutter-${{ hashFiles('sdk/flutter/**') }}
           restore-keys: |
-            ${{ runner.os }}-flutter
+            ${{ runner.os }}-flutter-${{ hashFiles('sdk/flutter/**') }}
 
       - name: Build and Push Flutter Image
         uses: docker/build-push-action@v5
