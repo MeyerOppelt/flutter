@@ -31,6 +31,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
           commit-message: "chore: Update Flutter version"
           title: "chore: Update Flutter version"
           branch: "chore/update-flutter-version"
